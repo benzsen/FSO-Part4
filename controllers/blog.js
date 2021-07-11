@@ -1,11 +1,13 @@
 const blogRouter = require('express').Router()
-const Note = require('../models/blog')
+const Blog = require('../models/blog')
 
-blogRouter.get('/api/blogs', (request, response) => {
+blogRouter.get('/api/blogs', (req, res) => {
+  console.log("received get request");
   Blog
     .find({})
     .then(blogs => {
-      response.json(blogs)
+      console.log(blogs);
+      res.json(blogs)
     })
 })
 
