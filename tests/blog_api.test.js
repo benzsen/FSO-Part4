@@ -138,10 +138,8 @@ test("Missing Title/URL data", async() =>{
   await api
     .post("/api/blogs")
     .send(missingTitleURL)
-    .expect(401)
-
+    .expect(400)
 }, 100000)
-
 
 afterAll(() => {
   mongoose.connection.close()
