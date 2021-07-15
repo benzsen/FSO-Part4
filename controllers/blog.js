@@ -13,6 +13,13 @@ blogRouter.get('/api/blogs', (req, res) => {
 blogRouter.post('/api/blogs', (request, response) => {
   const blog = new Blog(request.body)
 
+  if (blog.likes === undefined) {
+    blog.likes = 0
+  }
+
+  if (blog.url===undefined && blog.title===undefined){
+    response.status(401).end()
+  }
   blog
     .save()
     .then(result => {
