@@ -1,12 +1,9 @@
 const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
 
-blogRouter.get('/api/blogs', (req, res) => {
-  Blog
-    .find({})
-    .then(blogs => {
-      res.json(blogs)
-    })
+blogRouter.get('/api/blogs', async (req, res) => {
+  const blogs = await Blog.find({})
+  res.json(blogs)
 })
 
 blogRouter.delete('/api/blogs/:id', (req, res) => {
