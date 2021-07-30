@@ -1,10 +1,10 @@
 const bcrypt = require('bcryptjs')
 const usersRouter = require('express').Router()
 const User = require('../models/user')
+const uniqueValidator = require('mongoose-unique-validator')
 
-usersRouter.post('/', async (request, response) => {
+usersRouter.post('/api/users', async (request, response) => {
   const body = request.body
-
   const saltRounds = 10
   const passwordHash = await bcrypt.hash(body.password, saltRounds)
 
@@ -14,9 +14,18 @@ usersRouter.post('/', async (request, response) => {
     passwordHash,
   })
 
-  const savedUser = await user.save()
+  if (body.password.length < 3 || body.username.length < 3){
+    return response.status(401).json({error:"Invalid User and/or Password"})
+  }
 
-  response.json(savedUser)
+  const savedUser = await user.save(error=>{
+    if (error){
+      return response.status(400).json({error:"Username not unique"})
+    }
+    else{
+      response.json(savedUser)
+    }
+  })
 })
 
 usersRouter.get('/api/users', async (req, res) => {
@@ -24,7 +33,8 @@ usersRouter.get('/api/users', async (req, res) => {
   //   .then(users => {
   //     res.json(users)
   //   })
-  const users = await User.find({})
+  const users = await User
+    .find({}).populate("blogs")
   res.json(users)
 })
 
