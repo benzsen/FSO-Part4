@@ -3,8 +3,11 @@ const Blog = require('../models/blog')
 const User = require('../models/user')
 
 blogRouter.get('/api/blogs', async (req, res) => {
-  const blogs = await Blog.find({})
-  res.json(blogs)
+  const blogs = await Blog
+    .find({})
+    .populate("user", {name:1, username:1})
+    res.json(blogs)
+
 })
 
 blogRouter.delete('/api/blogs/:id', (req, res) => {
@@ -35,7 +38,8 @@ blogRouter.put('/api/blogs/:id', async (req, res, next) => {
 
 blogRouter.post('/api/blogs', async (request, response) => {
 const body = request.body
-const user = await User.findById(body.userId)
+//const user = await User.findById(body.userId)
+const user = await User.findOne()
 
   const blog = new Blog({
     title: body.title,

@@ -34,8 +34,8 @@ usersRouter.get('/api/users', async (req, res) => {
   //     res.json(users)
   //   })
   const users = await User
-    .find({}).populate("blogs")
-  res.json(users)
+    .find({}).populate("blogs", {title:1, url:1, likes:1})
+    res.json(users)
 })
 
 module.exports = usersRouter
