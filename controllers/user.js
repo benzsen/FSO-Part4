@@ -1,9 +1,9 @@
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcrypt')
 const usersRouter = require('express').Router()
 const User = require('../models/user')
 const uniqueValidator = require('mongoose-unique-validator')
 
-usersRouter.post('/api/users', async (request, response) => {
+usersRouter.post('/', async (request, response) => {
   const body = request.body
   const saltRounds = 10
   const passwordHash = await bcrypt.hash(body.password, saltRounds)
@@ -28,7 +28,7 @@ usersRouter.post('/api/users', async (request, response) => {
   })
 })
 
-usersRouter.get('/api/users', async (req, res) => {
+usersRouter.get('/', async (req, res) => {
   // const users = User.find({})
   //   .then(users => {
   //     res.json(users)

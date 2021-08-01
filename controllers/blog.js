@@ -1,8 +1,9 @@
 const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const jwt = require("jsonwebtoken")
 
-blogRouter.get('/api/blogs', async (req, res) => {
+blogRouter.get('/', async (req, res) => {
   const blogs = await Blog
     .find({})
     .populate("user", {name:1, username:1})
@@ -10,7 +11,7 @@ blogRouter.get('/api/blogs', async (req, res) => {
 
 })
 
-blogRouter.delete('/api/blogs/:id', (req, res) => {
+blogRouter.delete('/:id', (req, res) => {
   const id = (req.params.id)
 
   Blog.findByIdAndRemove(id)
@@ -22,7 +23,7 @@ blogRouter.delete('/api/blogs/:id', (req, res) => {
   res.status(204).end()
 })
 
-blogRouter.put('/api/blogs/:id', async (req, res, next) => {
+blogRouter.put('/:id', async (req, res, next) => {
   const body = req.body
 
   const blog = {
@@ -36,10 +37,28 @@ blogRouter.put('/api/blogs/:id', async (req, res, next) => {
     .catch(error => next(error))
 })
 
-blogRouter.post('/api/blogs', async (request, response) => {
+//Part4.19 Token Authorization
+const getTokenFrom = req => {
+  const authorization = req.get("authorization")
+  if (authorization && authorization.toLowerCase().startsWith("bearer ")){
+    return authorization.substring(7)
+  }
+  return null
+}
+
+blogRouter.post('/', async (request, response) => {
 const body = request.body
+const token = getTokenFrom(request)
+
+if (!token || !decodedToken.id){
+  return response.status(401).json({error: 'token missing or invalid'})
+}
+
+const decodedToken = jwt.verify(token, process.env.SECRET)
+
 //const user = await User.findById(body.userId)
-const user = await User.findOne()
+//const user = await User.findOne()
+const user = await User.findById(decodedToken.id)
 
   const blog = new Blog({
     title: body.title,
