@@ -26,7 +26,7 @@ app.use(middleware.reqLogger)
 app.use(middleware.tokenExtractor)
 //app.use(middleware.userExtractor)
 
-app.use('/api/blogs', blogRouter)
+app.use('/', blogRouter)
 app.use("/api/users", userRouter)
 app.use("/api/login", loginRouter)
 

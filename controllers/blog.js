@@ -11,7 +11,7 @@ blogRouter.get('/', async (req, res) => {
     res.json(blogs)
 })
 
-blogRouter.get('/:id', async (req, res) => {
+blogRouter.get('api/blogs/:id', async (req, res) => {
   const id = (req.params.id)
   const foundBlog = await Blog
     .findById(id)
@@ -26,7 +26,7 @@ blogRouter.get('/:id', async (req, res) => {
 })
 
 //Part4.21
-blogRouter.delete('/:id', middleware.userExtractor, async (req, res) => {
+blogRouter.delete('api/blogs/:id', middleware.userExtractor, async (req, res) => {
   //blog id
   const id = (req.params.id)
   // const token = req.token
@@ -50,7 +50,7 @@ blogRouter.delete('/:id', middleware.userExtractor, async (req, res) => {
 
 })
 
-blogRouter.put('/:id', async (req, res, next) => {
+blogRouter.put('api/blogs/:id', async (req, res, next) => {
   const body = req.body
 
   const blog = {
@@ -74,7 +74,7 @@ blogRouter.put('/:id', async (req, res, next) => {
 // }
 
 //Part4.20 Token Middleware (req.token)
-blogRouter.post('/', middleware.userExtractor,async (req, res) => {
+blogRouter.post('api/blogs/', middleware.userExtractor,async (req, res) => {
 const body = req.body
 // const token = req.token
 // const decodedToken = jwt.verify(token, process.env.SECRET)
