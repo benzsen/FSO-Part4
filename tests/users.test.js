@@ -36,7 +36,7 @@ describe("Signup Validation",()=>{
       .expect(401)
   })
 
-  test.only("Duplicate Username", async () => {
+  test("Duplicate Username", async () => {
     // await User.deleteMany({})
     // const usersObject = new User(initialUsers)
     // const promiseArray = usersObject.save()

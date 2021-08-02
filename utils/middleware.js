@@ -1,39 +1,53 @@
 const logger = require('./logger')
+const jwt = require("jsonwebtoken")
 
-const requestLogger = (request, response, next) => {
-  logger.info('Method:', request.method)
-  logger.info('Path:  ', request.path)
-  logger.info('Body:  ', request.body)
+const reqLogger = (req, res, next) => {
+  logger.info('Method:', req.method)
+  logger.info('Path:  ', req.path)
+  logger.info('Body:  ', req.body)
   logger.info('---')
   next()
 }
 
-const tokenExtractor = (request, response, next) => {
-  const authorization = request.get("authorization")
+const tokenExtractor = (req, res, next) => {
+  const authorization = req.get("authorization")
   if (authorization && authorization.toLowerCase().startsWith("bearer ")){
     const returnToken=authorization.substring(7)
-    console.log("returnToken", returnToken);
-    request.token=returnToken
+    req.token=returnToken
     next()
     return
     //This order matters
   }
-  request.token=null
+  req.token=null
   next()
   return
 }
 
-const errorHandler = (error, request, response, next) => {
+const userExtractor = (req, res, next) => {
+  const token = req.token
+  const decodedToken = jwt.verify(token, process.env.SECRET)
+  if (!token || !decodedToken.id){
+    next()
+    return res.status(401).json({error: 'token missing or invalid'})
+  }
+  else{
+    req.user = decodedToken
+    next()
+    return
+  }
+}
+
+const errorHandler = (error, req, res, next) => {
   if (error.name === 'CastError') {
-    return response.status(400).send({
+    return res.status(400).send({
       error: 'malformatted id'
     })
   } else if (error.name === 'ValidationError') {
-    return response.status(400).json({
+    return res.status(400).json({
       error: error.message
     })
   } else if (error.name === 'JsonWebTokenError') {
-    return response.status(401).json({
+    return res.status(401).json({
       error: 'invalid token'
     })
   }
@@ -42,13 +56,14 @@ const errorHandler = (error, request, response, next) => {
   next(error)
 }
 
-const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint test' })
+const unknownEndpoint = (req, res) => {
+  res.status(404).send({ error: 'unknown endpoint test' })
 }
 
 module.exports = {
-  requestLogger,
+  reqLogger,
   unknownEndpoint,
   errorHandler,
-  tokenExtractor
+  tokenExtractor,
+  userExtractor
 }

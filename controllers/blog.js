@@ -2,25 +2,52 @@ const blogRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require("jsonwebtoken")
+const middleware = require('../utils/middleware')
 
 blogRouter.get('/', async (req, res) => {
   const blogs = await Blog
     .find({})
     .populate("user", {name:1, username:1})
     res.json(blogs)
-
 })
 
-blogRouter.delete('/:id', (req, res) => {
+blogRouter.get('/:id', async (req, res) => {
   const id = (req.params.id)
+  const foundBlog = await Blog
+    .findById(id)
+    .populate("user", {name:1, username:1})
+  if (foundBlog) {
 
-  Blog.findByIdAndRemove(id)
-    .then(result=>{
-      res.status(204).end()
-    })
+    res.json(foundBlog)
+  }
+  else{
+    res.status(404).end()
+  }
+})
+
+//Part4.21
+blogRouter.delete('/:id', middleware.userExtractor, async (req, res) => {
+  //blog id
+  const id = (req.params.id)
+  // const token = req.token
+  // const decodedToken = jwt.verify(token, process.env.SECRET)
+  //const foundBlog = await Blog.findByIdAndRemove(id)
+  const foundBlog = await Blog.findById(id)
+
+  if (foundBlog.user.toString() === req.user.id.toString()){
+    const deleteBlogName = foundBlog.title;
+    Blog.findByIdAndRemove(id)
+      .then(result=>{
+        console.log("Deleted "+deleteBlogName+"from blog list");
+        res.status(204).end()
+      })
+      .catch(error => next())
+  }
+  else{
+    res(401).end()
     .catch(error => next())
+  }
 
-  res.status(204).end()
 })
 
 blogRouter.put('/:id', async (req, res, next) => {
@@ -46,21 +73,19 @@ blogRouter.put('/:id', async (req, res, next) => {
 //   return null
 // }
 
-//Part4.20 Token Middleware (request.token)
-blogRouter.post('/', async (request, response) => {
-const body = request.body
-//const token = getTokenFrom(request)
-const token = request.token
-console.log(token);
-const decodedToken = jwt.verify(token, process.env.SECRET)
+//Part4.20 Token Middleware (req.token)
+blogRouter.post('/', middleware.userExtractor,async (req, res) => {
+const body = req.body
+// const token = req.token
+// const decodedToken = jwt.verify(token, process.env.SECRET)
 
-if (!token || !decodedToken.id){
-  return response.status(401).json({error: 'token missing or invalid'})
-}
+// if (!token || !decodedToken.id){
+//   return res.status(401).json({error: 'token missing or invalid'})
+// }
 
 //const user = await User.findById(body.userId)
 //const user = await User.findOne()
-const user = await User.findById(decodedToken.id)
+const user = await User.findById(req.user.id)
 
   const blog = new Blog({
     title: body.title,
@@ -75,14 +100,14 @@ const user = await User.findById(decodedToken.id)
   }
 
   if (blog.url===undefined && blog.title===undefined){
-    response.status(400).end()
+    res.status(400).end()
   }
 
   const savedBlog = await blog.save()
   user.blogs = user.blogs.concat(savedBlog._id)
 
   await user.save()
-  response.status(201).json(savedBlog)
+  res.status(201).json(savedBlog)
 
 })
 
