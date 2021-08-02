@@ -38,23 +38,25 @@ blogRouter.put('/:id', async (req, res, next) => {
 })
 
 //Part4.19 Token Authorization
-const getTokenFrom = req => {
-  const authorization = req.get("authorization")
-  if (authorization && authorization.toLowerCase().startsWith("bearer ")){
-    return authorization.substring(7)
-  }
-  return null
-}
+// const getTokenFrom = req => {
+//   const authorization = req.get("authorization")
+//   if (authorization && authorization.toLowerCase().startsWith("bearer ")){
+//     return authorization.substring(7)
+//   }
+//   return null
+// }
 
+//Part4.20 Token Middleware (request.token)
 blogRouter.post('/', async (request, response) => {
 const body = request.body
-const token = getTokenFrom(request)
+//const token = getTokenFrom(request)
+const token = request.token
+console.log(token);
+const decodedToken = jwt.verify(token, process.env.SECRET)
 
 if (!token || !decodedToken.id){
   return response.status(401).json({error: 'token missing or invalid'})
 }
-
-const decodedToken = jwt.verify(token, process.env.SECRET)
 
 //const user = await User.findById(body.userId)
 //const user = await User.findOne()
