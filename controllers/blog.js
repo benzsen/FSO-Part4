@@ -4,20 +4,19 @@ const User = require('../models/user')
 const jwt = require("jsonwebtoken")
 const middleware = require('../utils/middleware')
 
-blogRouter.get('/', async (req, res) => {
+blogRouter.get('/api/blogs/', async (req, res) => {
   const blogs = await Blog
     .find({})
     .populate("user", {name:1, username:1})
     res.json(blogs)
 })
 
-blogRouter.get('api/blogs/:id', async (req, res) => {
+blogRouter.get('/api/blogs/:id', async (req, res) => {
   const id = (req.params.id)
   const foundBlog = await Blog
     .findById(id)
     .populate("user", {name:1, username:1})
   if (foundBlog) {
-
     res.json(foundBlog)
   }
   else{
@@ -26,7 +25,7 @@ blogRouter.get('api/blogs/:id', async (req, res) => {
 })
 
 //Part4.21
-blogRouter.delete('api/blogs/:id', middleware.userExtractor, async (req, res) => {
+blogRouter.delete('/api/blogs/:id', middleware.userExtractor, async (req, res) => {
   //blog id
   const id = (req.params.id)
   // const token = req.token
@@ -50,9 +49,8 @@ blogRouter.delete('api/blogs/:id', middleware.userExtractor, async (req, res) =>
 
 })
 
-blogRouter.put('api/blogs/:id', async (req, res, next) => {
+blogRouter.put('/api/blogs/:id', async (req, res, next) => {
   const body = req.body
-
   const blog = {
     likes: body.likes
   }
@@ -74,17 +72,9 @@ blogRouter.put('api/blogs/:id', async (req, res, next) => {
 // }
 
 //Part4.20 Token Middleware (req.token)
-blogRouter.post('api/blogs/', middleware.userExtractor,async (req, res) => {
+blogRouter.post('/api/blogs/', middleware.userExtractor, async (req, res) => {
 const body = req.body
-// const token = req.token
-// const decodedToken = jwt.verify(token, process.env.SECRET)
 
-// if (!token || !decodedToken.id){
-//   return res.status(401).json({error: 'token missing or invalid'})
-// }
-
-//const user = await User.findById(body.userId)
-//const user = await User.findOne()
 const user = await User.findById(req.user.id)
 
   const blog = new Blog({
