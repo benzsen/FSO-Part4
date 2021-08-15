@@ -2,6 +2,23 @@ const bcrypt = require('bcrypt')
 const usersRouter = require('express').Router()
 const User = require('../models/user')
 const uniqueValidator = require('mongoose-unique-validator')
+const middleware = require('../utils/middleware')
+
+// const userExtractor = (req, res, next) => {
+//   const token = req.token
+//   console.log("userExtractor", token);
+//   const decodedToken = jwt.verify(token, process.env.SECRET)
+//   if (!token || !decodedToken.id){
+//     next()
+//     return res.status(401).json({error: 'token missing or invalid'})
+//   }
+//   else{
+//     req.user = decodedToken
+//     console.log("decodedToken", decodedToken);
+//     next()
+//     return decodedToken.id
+//   }
+// }
 
 usersRouter.post('/', async (request, response) => {
   const body = request.body
@@ -33,6 +50,7 @@ usersRouter.get('/', async (req, res) => {
   //   .then(users => {
   //     res.json(users)
   //   })
+
   const users = await User
     .find({}).populate("blogs", {title:1, url:1, likes:1})
     res.json(users)

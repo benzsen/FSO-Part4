@@ -25,13 +25,13 @@ blogRouter.get('/api/blogs/:id', async (req, res) => {
 })
 
 //Part4.21
-blogRouter.delete('/api/blogs/:id', middleware.userExtractor, async (req, res) => {
+blogRouter.delete('/api/blogs/:id', middleware.userExtractor, async (req, res, next) => {
   //blog id
   const id = (req.params.id)
-  // const token = req.token
-  // const decodedToken = jwt.verify(token, process.env.SECRET)
-  //const foundBlog = await Blog.findByIdAndRemove(id)
   const foundBlog = await Blog.findById(id)
+
+  console.log(foundBlog.user.toString());
+  console.log(req.user.id.toString());
 
   if (foundBlog.user.toString() === req.user.id.toString()){
     const deleteBlogName = foundBlog.title;
@@ -43,23 +43,30 @@ blogRouter.delete('/api/blogs/:id', middleware.userExtractor, async (req, res) =
       .catch(error => next())
   }
   else{
-    res(401).end()
-    .catch(error => next())
+    res.status(401).end()
+    //.catch(error => next(error))
   }
 
 })
 
+//blog id
 blogRouter.put('/api/blogs/:id', async (req, res, next) => {
   const body = req.body
-  const blog = {
-    likes: body.likes
-  }
 
-  await Blog.findByIdAndUpdate(req.params.id, blog, { new: true })
+  // From previous excercice
+  // await Blog.findByIdAndUpdate(req.params.id, blog, { new: true })
+  //   .then(updatedBlog => {
+  //     res.json(updatedBlog)
+  //   })
+  //   .catch(error => next(error))
+
+  await Blog.findByIdAndUpdate(req.params.id, body)
     .then(updatedBlog => {
       res.json(updatedBlog)
     })
-    .catch(error => next(error))
+    .catch(error => {
+      console.log(error);
+      next(error)})
 })
 
 //Part4.19 Token Authorization
@@ -74,7 +81,6 @@ blogRouter.put('/api/blogs/:id', async (req, res, next) => {
 //Part4.20 Token Middleware (req.token)
 blogRouter.post('/api/blogs/', middleware.userExtractor, async (req, res) => {
 const body = req.body
-
 const user = await User.findById(req.user.id)
 
   const blog = new Blog({
