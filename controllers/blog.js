@@ -81,6 +81,7 @@ blogRouter.put('/api/blogs/:id', async (req, res, next) => {
 //Part4.20 Token Middleware (req.token)
 blogRouter.post('/api/blogs/', middleware.userExtractor, async (req, res) => {
 const body = req.body
+console.log("body", body);
 const user = await User.findById(req.user.id)
 
   const blog = new Blog({
@@ -104,6 +105,8 @@ const user = await User.findById(req.user.id)
 
   await user.save()
   res.status(201).json(savedBlog)
+
+
 })
 
 module.exports = blogRouter

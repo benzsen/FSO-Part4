@@ -37,10 +37,12 @@ usersRouter.post('/', async (request, response) => {
 
   const savedUser = await user.save(error=>{
     if (error){
+      console.log("FailsavedUser");
       return response.status(400).json({error:"Username not unique"})
     }
     else{
-      response.json(savedUser)
+      console.log("savedUser", savedUser);
+      return response.json(savedUser)
     }
   })
 })
