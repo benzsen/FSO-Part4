@@ -105,6 +105,8 @@ const user = await User.findById(req.user.id)
 
   await user.update()
   res.status(201).json(savedBlog)
+
+
 })
 
 module.exports = blogRouter
